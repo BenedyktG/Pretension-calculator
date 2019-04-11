@@ -1,41 +1,45 @@
 toplevel .pretension
 
-set fp [open "d:/AH/Boltscript/Pretension/Data.txt" r]
+set fp [open "Data.txt" r]
 set file_data [read $fp]
-set ::data [split $file_data "\n"]
+set data [split $file_data "\n"]
 close $fp
 
-image create photo obrazek -file "D:/AH/Boltscript/Pretension/fig.png"
-label .pretension.pic -image obrazek
+image create photo fig -file "fig.png"
+label .pretension.pic -image fig
 
-
+######################################################
+##                  initial data                    ##
+######################################################
 set thread_list {}
 set ds 12
-set M 10000
-set cf 0.2
-set cf1 0.2
+set M 10000     ;#tightening torque
+set cf 0.2      ;#friction coeffitient
+set cf1 0.2     ;#friction coeffitient
 set pi 3.1415926535897931
-set alfa [expr {30*$pi/180}]
+set alfa [expr {30*$pi/180}] ;#for metric threads 30 degree
 
 foreach thread $data {
     lappend thread_list [lindex $thread 0]
 }
 
 
-
+######################################################
+##                  window layout                   ##
+######################################################
 ttk::combobox .pretension.s2 -values $thread_list -textvariable thread1
 .pretension.s2 current 0
 
-ttk::label .pretension.title -text "Obliczenie sily wstepnej"
-ttk::label .pretension.thread -text "Wybierz rozmiar gwintu"
+ttk::label .pretension.title -text "Pretension force"
+ttk::label .pretension.thread -text "Choose thread"
 ttk::label .pretension.lp -text "P \[mm\]"
 ttk::label .pretension.ld2 -text "d2 \[mm\]"
-ttk::label .pretension.lm -text "M \[Nmm\]"
+ttk::label .pretension.lm -text "M \[Nmm\]"             ;#tightening torque
 ttk::label .pretension.space -text " " -width 5
-ttk::label .pretension.mu -text \u03BC
-ttk::label .pretension.mu1 -text \u03BC1
+ttk::label .pretension.mu -text \u03BC                  ;#friction coeffitient
+ttk::label .pretension.mu1 -text \u03BC1                ;#friction coeffitient
 ttk::label .pretension.ds -text "ds \[mm\]"
-ttk::label .pretension.f -text F
+ttk::label .pretension.f -text F                        ;#pretension force
 .pretension.f configure -font "-weight bold"
 
 
@@ -47,19 +51,22 @@ ttk::entry .pretension.emu1 -textvariable cf1 -width 10
 ttk::entry .pretension.ef -textvariable Fnap -width 10 -state readonly
 ttk::entry .pretension.eds -textvariable ds -width 10
 
-
-ttk::button .pretension.wczytaj -text Wczytaj -command {
+#reading data from DATA.txt
+ttk::button .pretension.load -text Load -command {
     set p [lindex [lindex $data [lsearch $thread_list [.pretension.s2 get]]] 1]
     set d2 [lindex [lindex $data [lsearch $thread_list [.pretension.s2 get]]] 2]
 }
 
-ttk::button .pretension.licz -text Licz -command {
+######################################################
+##                  calculations                    ##
+######################################################
+ttk::button .pretension.run -text Run -command {
     set gamma [expr {atan($p/($pi*$d2))}]
     set rho [expr {atan($cf/cos($alfa))}]
     set Fnap [expr {double(round(100*(2*$M)/($ds*$cf+$d2*tan($gamma+$rho))))/100}]
 }
 
-ttk::button .pretension.cancel -text Zamknij -command {destroy .pretension}
+ttk::button .pretension.close -text Close -command {destroy .pretension}
 
 grid .pretension.pic -column 0 -rowspan 10 -row 0 -padx 5
 grid .pretension.title -column 1 -columnspan 8 -row 1
@@ -92,9 +99,9 @@ grid .pretension.f -row 8 -column 3 -columnspan 2 -sticky e
 grid .pretension.ef -row 8 -column 5 -columnspan 2
 
 
-grid .pretension.wczytaj -row 9 -column 4 -pady 10
-grid .pretension.licz -row 9 -column 5 -pady 10
-grid .pretension.cancel -row 9 -column 6 -pady 10
+grid .pretension.load -row 9 -column 4 -pady 10
+grid .pretension.run -row 9 -column 5 -pady 10
+grid .pretension.close -row 9 -column 6 -pady 10
 
 
-tkwait window .pretension
+#tkwait window .pretension

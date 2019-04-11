@@ -104,4 +104,4 @@ grid .pretension.run -row 9 -column 5 -pady 10
 grid .pretension.close -row 9 -column 6 -pady 10
 
 
-#tkwait window .pretension
+tkwait window .pretension
